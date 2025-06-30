@@ -28,6 +28,9 @@ async function createUser(req, res) {
             message: "succes"
         });
     } catch (error) {
+        if (error.message == "Email already exist") {
+            return res.status(409).json({ message: error.message })
+        }
         console.log(error);
         res.status(500).json({ message: "Server error" })
     }
