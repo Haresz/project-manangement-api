@@ -1,5 +1,5 @@
 import db from "../config/db.js";
-import bycrypt from "bcrypt";
+import bcrypt from "bcrypt";
 const saltRound = 12;
 
 async function findAll() {
@@ -9,14 +9,18 @@ async function findAll() {
 };
 
 async function create({ name, email, password, avatarUrl }) {
-    const hashPassword = await bycrypt.hash(password, saltRound);
+    console.log(name, email, password)
+    const hashPassword = await bcrypt.hash(password, saltRound);
 
-    const sqlQuery = "INSET INTO users (name, email, password_hash, avatar_url) VALUES ($1, $2, $3, $4);"
+    const sqlQuery = `INSERT INTO users (name, email, password_hash, avatar_url) 
+                    VALUES ($1, $2, $3, $4)
+                    RETURNING id, name, email, avatar_url, created_at;`
+
     const values = [name, email, hashPassword, avatarUrl]
     const { rows } = await db.query(sqlQuery, values);
 
-    return rows;
-}
+    return rows[0];
+};
 
 export default {
     findAll,
