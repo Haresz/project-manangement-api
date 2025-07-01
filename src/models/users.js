@@ -8,15 +8,24 @@ async function findAll() {
     return rows
 };
 
-async function create({ name, email, password, avatarUrl }) {
-    console.log(name, email, password)
-    const hashPassword = await bcrypt.hash(password, saltRound);
-
+async function findByEmail({ email }) {
     const checkEmailQuery = `SELECT * FROM users WHERE email = $1`;
-    const existingUser = await db.query(checkEmailQuery, [email]);
+    const { rows } = await db.query(checkEmailQuery, [email]);
 
-    if (existingUser.rows.length > 0) {
-        throw new Error("Email already exist");
+
+    if (!rows.length) {
+        return null;
+    };
+
+    return rows[0];
+}
+
+async function create({ name, email, password, avatarUrl }) {
+    const hashPassword = await bcrypt.hash(password, saltRound);
+    const existingUser = await findByEmail({ email });
+
+    if (!existingUser) {
+        return null;
     }
 
     const sqlQuery = `INSERT INTO users (name, email, password_hash, avatar_url) 
@@ -29,8 +38,32 @@ async function create({ name, email, password, avatarUrl }) {
     return rows[0];
 };
 
+async function findByCredentials({ email, password }) {
+    console.log(email, password)
+    const emailValid = await findByEmail({ email });
+    console.log(emailValid)
+
+    if (!emailValid) {
+        return null;
+    }
+
+
+    const user = emailValid;
+    const isPasswordCorrect = await bcrypt.compare(password, user.password_hash);
+
+
+    if (!isPasswordCorrect) {
+        return null;
+    };
+
+    delete user.password_hash;
+    return user;
+}
+
 export default {
     findAll,
+    findByEmail,
+    findByCredentials,
     create
 }
 

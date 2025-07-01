@@ -23,14 +23,16 @@ async function createUser(req, res) {
     try {
         const newUser = await userModel.create(req.body);
 
+        if (!newUser) {
+            return res.status(409).json({ message: "Email already exist" })
+        }
+
         res.status(200).json({
             data: newUser,
             message: "succes"
         });
     } catch (error) {
-        if (error.message == "Email already exist") {
-            return res.status(409).json({ message: error.message })
-        }
+
         console.log(error);
         res.status(500).json({ message: "Server error" })
     }
