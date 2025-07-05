@@ -39,9 +39,7 @@ async function create({ name, email, password, avatarUrl }) {
 };
 
 async function findByCredentials({ email, password }) {
-    console.log(email, password)
     const emailValid = await findByEmail({ email });
-    console.log(emailValid)
 
     if (!emailValid) {
         return null;
@@ -58,12 +56,32 @@ async function findByCredentials({ email, password }) {
 
     delete user.password_hash;
     return user;
+};
+
+async function updateRefreshToken({ userId, token }) {
+    const sqlQuery = `UPDATE users SET refresh_token = $1 WHERE id = $2 RETURNING id`;
+    const { rows } = await db.query(sqlQuery, [token, userId]);
+    return rows[0]
+};
+
+async function findRefreshToken(token) {
+    const sqlQuery = "SELECT * FROM users WHERE refresh_token = $1";
+    const { rows } = await db.query(sqlQuery, [token]);
+    return rows[0]
+}
+
+async function clearRefreshToken({ userId }) {
+    const sqlQuery = "UPDATE users SET refresh_token = NULL WHERE id = $1";
+    await db.query(sqlQuery, [userId]);
 }
 
 export default {
     findAll,
     findByEmail,
     findByCredentials,
-    create
+    create,
+    updateRefreshToken,
+    findRefreshToken,
+    clearRefreshToken
 }
 
