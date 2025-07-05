@@ -1,69 +1,20 @@
 import db from "../config/db.js";
 import bcrypt from "bcrypt";
+import { countServices, findAllServices } from "../services/dbServices.js";
 const saltRound = 12;
+const TABLE_NAME = "users"
 
-async function findAll({ limit, offset, sorts, filters = [] }) {
-    const queryValues = [limit, offset];
-    let whereClause = "";
-
-    if (filters.length > 0) {
-        const whereCondition = filters.map((filter, index) => {
-            const { field, operator, value } = filter;
-            // use params 3 becausu 1 and 2 use in limit and offset
-            const paramIndex = index + 3;
-
-            // mapping operator to SQL dintaks
-            switch (operator) {
-                case 'eq':
-                    queryValues.push(value);
-                    return `"${field}" = $${paramIndex}`;
-                case 'ne':
-                    queryValues.push(value);
-                    return `"${field}" != $${paramIndex}`;
-                case 'gt':
-                    queryValues.push(value);
-                    return `"${field}" > $${paramIndex}`;
-                case 'gte':
-                    queryValues.push(value);
-                    return `"${field}" >= $${paramIndex}`;
-                case 'lt':
-                    queryValues.push(value);
-                    return `"${field}" < $${paramIndex}`;
-                case 'lte':
-                    queryValues.push(value);
-                    return `"${field}" <= $${paramIndex}`;
-                case 'like':
-                    queryValues.push(`%${value}%`);
-                    return `"${field}" ILIKE $${paramIndex}`;
-                case "in":
-                    const inValues = value.split(',');
-                    const inPlacholders = inValues.map((val, i) => {
-                        queryValues.push(val);
-                        return `$${paramIndex + i}`;
-                    }).join(',');
-                    return `"${field}" IN (${inPlacholders})`
-
-                default:
-                    return null;
-            }
-        }).filter(Boolean);
-
-        if (whereCondition.length > 0) {
-            whereClause = `WHERE ${whereCondition.join(" AND ")}`
-        }
-    }
-
-    const orderByClause = sorts.map(srt => `${srt.field} ${srt.direction}`).join(", ")
-    const sqlQuery = `SELECT id, name, email, avatar_url, created_at, updated_at FROM users ${whereClause} ORDER BY ${orderByClause} LIMIT $1 OFFSET $2`
-    const { rows } = await db.query(sqlQuery, queryValues);
-
-    return rows
+async function findAll(queryOptions) {
+    const selectQuery = "id, name, email, avatar_url, created_at, updated_at"
+    return findAllServices({
+        tableName: TABLE_NAME,
+        queryOptions,
+        selectQuery
+    })
 };
 
 async function countOfUsers() {
-    const sqlQuery = "SELECT COUNT(*) FROM users";
-    const { rows } = await db.query(sqlQuery);
-    return rows[0].count
+    return countServices({ tableName: TABLE_NAME });
 }
 
 async function findByEmail({ email }) {

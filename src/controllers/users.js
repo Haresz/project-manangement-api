@@ -2,55 +2,14 @@ import userModel from "../models/users.js";
 import { validationResult } from "express-validator";
 
 async function getAllUsers(req, res) {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 25;
-    const offset = (page - 1) * limit;
-
-    // sorting
-    const allowedColumns = ["name", "email", "created_at", "updated_at"];
-    const sortQuery = req.query.sort || "-created_at";
-
-    const sorts = sortQuery.split(',')
-        .map(srt => {
-            const direction = srt.startsWith("-") ? "DESC" : "ASC";
-            const field = srt.startsWith("-") ? srt.slice(1) : srt;
-
-            if (allowedColumns.includes(field)) {
-                return { field, direction }
-            }
-            return null
-        })
-        .filter(Boolean)
-
-    if (sorts.length === 0) {
-        sorts.push({ field: "created_at", direction: "DESC" })
-    }
-
-    // filtering
-    const filters = [];
-    const queryParams = req.query;
-
-
-    for (const key in queryParams) {
-        // matching this formats
-        const match = key.match(/(\w+)\[(\w+)\]/);
-        if (match) {
-            const field = match[1];
-            const operator = match[2];
-            const value = queryParams[key];
-
-            if (allowedColumns.includes(field)) {
-                filters.push({ field, operator, value })
-            }
-
-        }
-    }
+    const { pagination } = req.queryOptions;
+    const { limit, page } = pagination
 
     try {
-        const users = await userModel.findAll({ limit, offset, sorts, filters });
+        const users = await userModel.findAll(req.queryOptions);
         const count = parseInt(await userModel.countOfUsers());
 
-        const pagination = {
+        const paginationResponse = {
             totalItems: count,
             totalPages: Math.ceil(count / limit),
             itemPerPage: limit,
@@ -62,14 +21,14 @@ async function getAllUsers(req, res) {
         if (users.length <= 0) {
             return res.status(200).json({
                 data: users,
-                pagination,
+                paginationResponse,
                 message: "No users found",
             })
         }
 
         res.status(200).json({
             data: users,
-            pagination,
+            paginationResponse,
             message: "succes"
         });
     } catch (error) {
