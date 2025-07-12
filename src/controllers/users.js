@@ -7,7 +7,7 @@ async function getAllUsers(req, res) {
 
     try {
         const users = await userModel.findAll(req.queryOptions);
-        const count = parseInt(await userModel.countOfUsers());
+        const count = parseInt(await userModel.countOfUsers(req.queryOptions));
 
         const paginationResponse = {
             totalItems: count,

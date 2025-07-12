@@ -14,7 +14,7 @@ async function findAll(queryOptions) {
 };
 
 async function countOfUsers() {
-    return countServices({ tableName: TABLE_NAME });
+    return countServices({ tableName: TABLE_NAME, queryOptions });
 }
 
 async function findByEmail({ email }) {

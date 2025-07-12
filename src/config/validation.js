@@ -28,3 +28,14 @@ export const validationLogin = [
         .not().isEmpty()
         .escape(),
 ];
+
+export const validationOrganization = [
+    body('name', "Name must be filled")
+        .trim()
+        .not().isEmpty()
+        .escape(),
+    body('owner_id', "Owner must be filled")
+        .trim()
+        .not().isEmpty()
+        .escape()
+];
