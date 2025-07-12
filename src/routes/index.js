@@ -30,7 +30,7 @@ router.get('/organizations', verifyToken, queryParser(organizationQueryOptions),
 router.get('/organization/:id', verifyToken, organizationController.getOrganization)
 router.post('/organization/create', verifyToken, validationOrganization, organizationController.createOrganization);
 router.patch('/organization/:id', verifyToken, organizationController.updateOrganization);
-router.delete('/organizarion/:id', verifyToken, organizationController.deleteOrganization)
+router.delete('/organization/:id', verifyToken, organizationController.deleteOrganization)
 
 
 export default router

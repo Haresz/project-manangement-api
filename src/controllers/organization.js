@@ -22,7 +22,7 @@ async function getAllOrganization(req, res) {
             return res.status(200).json({
                 data: users,
                 paginationResponse,
-                message: "No users found",
+                message: "No organizations found",
             })
         }
 

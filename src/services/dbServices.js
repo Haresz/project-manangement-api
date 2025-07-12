@@ -46,13 +46,14 @@ function validateTable(tableName) {
     }
 }
 
-function buildFilterClause(filters = []) {
+// filter clause
+function buildFilterClause(filters = [], startingIndex = 1) {
     if (!filters || filters.length === 0) {
         return { clause: "", values: [] };
     }
 
     const queryValues = [];
-    let paramCounter = 1;
+    let paramCounter = startingIndex;
 
     const whereConditions = filters.map(filter => {
         const { field, operator, value } = filter;
@@ -92,28 +93,63 @@ function buildFilterClause(filters = []) {
         }
     }).filter(Boolean);
 
-    const clause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(" AND ")}` : "";
+    const clause = whereConditions.length > 0 ? `${whereConditions.join(" AND ")}` : "";
     return { clause, values: queryValues };
 }
 
-export async function findAllServices({ tableName, queryOptions, selectQuery = "*" }) {
+// combine where clause
+function buildCombineWhereClause(baseConditions, filters) {
+    const baseFields = Object.keys(baseConditions);
+    const baseValues = Object.values(baseConditions);
+
+    const baseCaluse = baseFields
+        .map((field, index) => `"${field}" = $${index + 1}`)
+        .join(" AND ");
+
+    const { clause: filterClause, values: filterValues } = buildFilterClause(filters, baseValues.length + 1);
+
+    const finalValues = [...baseValues, ...filterValues];
+
+    let finalCaluse = "";
+    if (baseCaluse && filterClause) {
+        finalCaluse = `WHERE ${baseCaluse} AND (${filterClause})`;
+    } else if (baseCaluse) {
+        finalCaluse = `WHERE ${baseCaluse}`
+    } else if (filterClause) {
+        finalCaluse = `WHERE ${filterClause}`
+    }
+
+    return { finalWhereClause: finalCaluse, finalValues }
+}
+
+/**
+ * Mencari semua data dengan paginasi, sorting, dan filter dinamis, 
+ * ditambah kemampuan untuk filter dasar dari server.
+ * @param {object} params
+ * @param {string} params.tableName
+ * @param {object} params.queryOptions - Opsi dari client { pagination, sorts, filters }
+ * @param {object} [params.baseConditions={}] - Kondisi filter wajib dari server. Contoh: { organization_id: 123 }
+ * @param {string} [params.selectQuery="*"]
+ * @returns {Promise<Array>}
+ */
+export async function findAllServices({ tableName, queryOptions, selectQuery = "*", baseConditions = {} }) {
     validateTable(tableName);
 
     const { pagination, sorts, filters } = queryOptions;
     const { limit, offset } = pagination;
 
-    const { clause: whereClause, values: filterValues } = buildFilterClause(filters);
+    const { finalWhereClause, finalValues } = buildCombineWhereClause(baseConditions, filters);
+
+    const queryValues = [...finalValues, limit, offset];
+
     const orderByClause = sorts.map(srt => `"${srt.field}" ${srt.direction}`).join(", ");
-
-    const queryValues = [...filterValues, limit, offset];
-
-    const limitPLaceholder = `$${filterValues.length + 1}`
-    const offsetPlaceholder = `$${filterValues.length + 2}`
+    const limitPLaceholder = `$${finalValues.length + 1}`
+    const offsetPlaceholder = `$${finalValues.length + 2}`
 
     const sqlQuery = `
         SELECT ${selectQuery}
         FROM ${tableName}
-        ${whereClause}
+        ${finalWhereClause}
         ORDER BY ${orderByClause}
         LIMIT ${limitPLaceholder}
         OFFSET ${offsetPlaceholder}
@@ -152,12 +188,12 @@ export async function findOneServices({ tableName, conditions }) {
 
 export async function countServices({ tableName, queryOptions }) {
     validateTable(tableName);
-    const { clause, values } = buildFilterClause(queryOptions.filters);
 
+    const { finalWhereClause, finalValues } = buildCombineWhereClause(baseConditions, queryOptions.filters);
+    const sqlQuery = `SELECT COUNT(*) FROM "${tableName}" ${finalWhereClause}`;
 
-    const sqlQuery = `SELECT COUNT(*) FROM ${tableName} ${clause}`;
-    const { rows } = await db.query(sqlQuery, values);
-    return parseInt(rows[0].count, 10);;
+    const { rows } = await db.query(sqlQuery, finalValues);
+    return parseInt(rows[0].count, 10);
 }
 
 export async function createServices({ tableName, data }) {
