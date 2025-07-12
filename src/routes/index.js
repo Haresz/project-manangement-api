@@ -26,11 +26,14 @@ router.post('/refresh', authController.refreshToken);
 router.delete('/logout', verifyToken, authController.logout);
 
 // organization
-router.get('/organizations', verifyToken, queryParser(organizationQueryOptions), organizationController.getAllOrganization);
-router.get('/organization/:id', verifyToken, organizationController.getOrganization)
+router.get('/organizations', verifyToken, queryParser(organizationQueryOptions), organizationController.getAllOrgForMember);
+router.get('/organization/:id', verifyToken, organizationController.getOrganization);
 router.post('/organization/create', verifyToken, validationOrganization, organizationController.createOrganization);
 router.patch('/organization/:id', verifyToken, organizationController.updateOrganization);
-router.delete('/organization/:id', verifyToken, organizationController.deleteOrganization)
+router.delete('/organization/:id', verifyToken, organizationController.deleteOrganization);
+
+// members
+// router.get('/organizations')
 
 
 export default router

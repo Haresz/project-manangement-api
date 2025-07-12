@@ -47,7 +47,7 @@ function validateTable(tableName) {
 }
 
 // filter clause
-function buildFilterClause(filters = [], startingIndex = 1) {
+export function buildFilterClause(filters = [], startingIndex = 1) {
     if (!filters || filters.length === 0) {
         return { clause: "", values: [] };
     }
@@ -98,7 +98,7 @@ function buildFilterClause(filters = [], startingIndex = 1) {
 }
 
 // combine where clause
-function buildCombineWhereClause(baseConditions, filters) {
+export function buildCombineWhereClause(baseConditions, filters) {
     const baseFields = Object.keys(baseConditions);
     const baseValues = Object.values(baseConditions);
 
@@ -157,7 +157,7 @@ export async function findAllServices({ tableName, queryOptions, selectQuery = "
 
     const { rows } = await db.query(sqlQuery, queryValues);
     return rows;
-}
+};
 
 /**
  * Mencari satu data record berdasarkan kriteria tertentu.

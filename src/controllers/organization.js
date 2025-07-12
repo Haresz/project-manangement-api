@@ -2,20 +2,23 @@ import { validationResult } from "express-validator";
 import organizationModel from "../models/organizations.js";
 import { createOrganizationAndAddOwner } from "../services/organizationServices.js";
 
-async function getAllOrganization(req, res) {
+async function getAllOrgForMember(req, res) {
+    const { id: user_id } = req.user;
     const { pagination } = req.queryOptions;
-    const { limit, page } = pagination
+    const { limit, page } = pagination;
+
 
     try {
-        const users = await organizationModel.findAll(req.queryOptions);
-        const count = parseInt(await organizationModel.countOfOrganization(req.queryOptions));
+        const users = await organizationModel.findAllForMember({ queryOptions: req.queryOptions, user_id });
+        const count = parseInt(await organizationModel.countForMember({ queryOptions: req.queryOptions, user_id }));
 
+        const totalPages = Math.ceil(count / limit);
         const paginationResponse = {
             totalItems: count,
-            totalPages: Math.ceil(count / limit),
+            totalPages,
             itemPerPage: limit,
             currentPage: page,
-            nextPage: page < count ? page + 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
             prevPage: page > 1 ? page - 1 : null
         }
 
@@ -125,7 +128,7 @@ async function deleteOrganization(req, res) {
 }
 
 export default {
-    getAllOrganization,
+    getAllOrgForMember,
     getOrganization,
     createOrganization,
     updateOrganization,
