@@ -29,10 +29,11 @@ async function countOfOrganization(queryOptions) {
     })
 };
 
-async function create(data = {}) {
+async function create({ data = {}, db }) {
     return createServices({
         tableName: TABLE_NAME,
-        data
+        data,
+        db
     })
 };
 

@@ -1,5 +1,6 @@
 import { validationResult } from "express-validator";
 import organizationModel from "../models/organizations.js";
+import { createOrganizationAndAddOwner } from "../services/organizationServices.js";
 
 async function getAllOrganization(req, res) {
     const { pagination } = req.queryOptions;
@@ -42,6 +43,12 @@ async function getOrganization(req, res) {
     try {
         const organization = await organizationModel.findById({ id });
 
+        if (!organization) {
+            return res.status(404).json({
+                message: `Organization Not Found`
+            })
+        }
+
         res.status(200).json({
             data: organization,
             message: "success"
@@ -61,10 +68,11 @@ async function createOrganization(req, res) {
         return res.status(400).json({ errors: errors.array() })
     }
 
-    try {
-        const newOrganization = await organizationModel.create(req.body);
 
-        res.status(200).json({
+    try {
+        const newOrganization = await createOrganizationAndAddOwner({ data: req.body, ownerId: req.user.id });
+
+        res.status(201).json({
             data: newOrganization,
             message: "success"
         })
@@ -79,7 +87,13 @@ async function updateOrganization(req, res) {
     try {
         const organization = await organizationModel.update({ data: req.body, id });
 
-        res.status(200).json({
+        if (!organization) {
+            return res.status(404).json({
+                message: `Organization Not Found`
+            })
+        }
+
+        res.status(201).json({
             data: organization,
             message: "Update Successfuly"
         })
@@ -94,7 +108,14 @@ async function deleteOrganization(req, res) {
     try {
         const organization = await organizationModel.deleteData({ id });
 
-        res.status(200).json({
+        if (!organization) {
+            return res.status(404).json({
+                message: `Organization Not Found`
+            })
+        }
+
+        res.status(201).json({
+            data: organization,
             message: "Delete Successfuly"
         })
     } catch (error) {

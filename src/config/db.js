@@ -21,4 +21,5 @@ pool.query('SELECT NOW()', (err, res) => {
 
 export default {
     query: (text, params) => pool.query(text, params),
+    pool: pool
 };

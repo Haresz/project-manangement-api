@@ -186,7 +186,7 @@ export async function findOneServices({ tableName, conditions }) {
     return rows[0] || null
 }
 
-export async function countServices({ tableName, queryOptions }) {
+export async function countServices({ tableName, queryOptions, baseConditions }) {
     validateTable(tableName);
 
     const { finalWhereClause, finalValues } = buildCombineWhereClause(baseConditions, queryOptions.filters);
@@ -196,7 +196,7 @@ export async function countServices({ tableName, queryOptions }) {
     return parseInt(rows[0].count, 10);
 }
 
-export async function createServices({ tableName, data }) {
+export async function createServices({ tableName, data, dbClient = db }) {
     validateColumns(tableName, data, 'create');
 
     const tableColumns = Object.keys(data).join(", ");
@@ -204,15 +204,14 @@ export async function createServices({ tableName, data }) {
     const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");
 
     const sqlQuery = `INSERT INTO ${tableName} (${tableColumns}) VALUES (${placeholders}) RETURNING *`;
-    const { rows } = await db.query(sqlQuery, values);
+    const { rows } = await dbClient.query(sqlQuery, values);
 
-    return rows;
+    return rows[0];
 }
 
 export async function updateServices({ tableName, data, id }) {
     validateColumns(tableName, data, "update")
 
-    console.log(id)
     const fields = Object.keys(data);
     const values = Object.values(data);
     const setString = fields.map((field, index) => `${field} = $${index + 1}`).join(", ");
@@ -223,7 +222,7 @@ export async function updateServices({ tableName, data, id }) {
     const sqlQuery = `UPDATE ${tableName} SET ${setString} WHERE id = ${idPlaceholder} RETURNING *`;
 
     const { rows } = await db.query(sqlQuery, queryParams);
-    return rows[0];
+    return rows[0] || null;
 }
 
 /**
