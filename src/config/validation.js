@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 
 export const validationRegister = [
     body('name', "Name must be filled")
@@ -44,13 +44,18 @@ export const validationMember = [
     body('user_id', "user_id must be filled")
         .trim()
         .not().isEmpty()
-        .escape(),
+        .escape().isUUID(4),
     body('organization_id', "organization_id must be filled")
         .trim()
         .not().isEmpty()
-        .escape(),
+        .escape().isUUID(4),
     body('role', "role must be filled")
         .trim()
         .not().isEmpty()
-        .escape(),
-]
+        .escape().isUUID(4),
+];
+
+export const validationParamsMember = [
+    param("organization_id", "Invalid organization_id").isUUID(4),
+    param("user_id", "Invalid user_id").isUUID(4)
+];

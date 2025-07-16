@@ -43,6 +43,12 @@ async function getMembersOfOrganizations(req, res) {
 };
 
 async function getDetailMember(req, res) {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
+
     const { organization_id, user_id } = req.params;
     try {
         const member = await organizationMembersModels.findMember({ organization_id, user_id });
@@ -68,7 +74,7 @@ async function getDetailMember(req, res) {
 async function createMember(req, res) {
     const errors = validationResult(req);
 
-    if (!errors.isEmpty) {
+    if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() })
     }
 
@@ -91,6 +97,19 @@ async function createMember(req, res) {
 
 async function updateMember(req, res) {
     const { organization_id, user_id } = req.params;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
+
+    const isMemberExist = await organizationMembersModels.findMember({ organization_id, user_id });
+
+    if (!isMemberExist) {
+        return res.status(404).json({
+            message: `Member Not Found`
+        })
+    }
     try {
         const member = await organizationMembersModels.updateMember({ data: req.body, organization_id, user_id });
 
@@ -114,6 +133,20 @@ async function updateMember(req, res) {
 
 async function deleteMember(req, res) {
     const { organization_id, user_id } = req.params;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    };
+
+    const isMemberExist = await organizationMembersModels.findMember({ organization_id, user_id });
+
+    if (!isMemberExist) {
+        return res.status(404).json({
+            message: `Member Not Found`
+        })
+    }
+
     try {
         const member = await organizationMembersModels.deleteMember({ organization_id, user_id });
 
