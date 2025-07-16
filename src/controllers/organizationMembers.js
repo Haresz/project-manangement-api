@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import organizationMembersModels from "../models/organizationMembers";
+import organizationMembersModels from "../models/organizationMembers.js";
 
 async function getMembersOfOrganizations(req, res) {
     const { organization_id } = req.params;
@@ -122,6 +122,10 @@ async function deleteMember(req, res) {
                 message: `Member Not Found`
             })
         };
+
+        res.status(200).json({
+            message: "delete success"
+        })
 
     } catch (error) {
         console.log(error);

@@ -2,8 +2,9 @@ import express from "express";
 import userController from "../controllers/users.js";
 import authController from "../controllers/auth.js";
 import organizationController from "../controllers/organization.js";
+import memberController from "../controllers/organizationMembers.js"
 
-import { validationLogin, validationOrganization, validationRegister } from "../config/validation.js";
+import { validationLogin, validationMember, validationOrganization, validationRegister } from "../config/validation.js";
 import { verifyToken } from "../middleware/auth.js";
 import { queryParser } from "../middleware/queryParser.js";
 
@@ -16,7 +17,11 @@ const userQueryOptions = {
 
 const organizationQueryOptions = {
     allowedColumns: ["id", "name", "owner_id"]
-}
+};
+
+const membersQueryOptions = {
+    allowedColumns: ["role", "organization_id", "user_id", "joined_at"]
+};
 
 // auth
 router.get('/users', verifyToken, queryParser(userQueryOptions), userController.getAllUsers);
@@ -33,7 +38,11 @@ router.patch('/organization/:id', verifyToken, organizationController.updateOrga
 router.delete('/organization/:id', verifyToken, organizationController.deleteOrganization);
 
 // members
-// router.get('/organizations')
+router.get('/organizations/:organization_id/members', verifyToken, queryParser(membersQueryOptions), memberController.getMembersOfOrganizations);
+router.get('/organizations/:organization_id/members/:user_id', verifyToken, memberController.getDetailMember);
+router.post('/organizations/members', verifyToken, validationMember, memberController.createMember);
+router.patch('/organizations/:organization_id/members/:user_id', verifyToken, memberController.updateMember);
+router.delete('/organizations/:organization_id/members/:user_id', verifyToken, memberController.deleteMember);
 
 
 export default router

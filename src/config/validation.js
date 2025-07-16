@@ -39,3 +39,18 @@ export const validationOrganization = [
         .not().isEmpty()
         .escape()
 ];
+
+export const validationMember = [
+    body('user_id', "user_id must be filled")
+        .trim()
+        .not().isEmpty()
+        .escape(),
+    body('organization_id', "organization_id must be filled")
+        .trim()
+        .not().isEmpty()
+        .escape(),
+    body('role', "role must be filled")
+        .trim()
+        .not().isEmpty()
+        .escape(),
+]

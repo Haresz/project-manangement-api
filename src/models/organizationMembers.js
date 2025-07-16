@@ -1,3 +1,4 @@
+import db from "../config/db.js"
 import { countServices, createServices, deleteServices, findAllServices, findOneServices, updateServices } from "../services/dbServices.js"
 const TABEL_NAME = "organization_members"
 
@@ -56,7 +57,7 @@ async function createMember({ data = {}, db }) {
 
 async function updateMember({ data, organization_id, user_id }) {
     const { role } = data;
-    const sqlQuery = `UPDATE ${TABEL_NAME} SET role = $1 WHERE user_id = $2 AND organization_id = $3`
+    const sqlQuery = `UPDATE ${TABEL_NAME} SET role = $1 WHERE user_id = $2 AND organization_id = $3  RETURNING *`;
 
     const { rows } = await db.query(sqlQuery, [role, user_id, organization_id])
     return rows[0];

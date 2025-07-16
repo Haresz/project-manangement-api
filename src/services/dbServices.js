@@ -98,7 +98,7 @@ export function buildFilterClause(filters = [], startingIndex = 1) {
 }
 
 // combine where clause
-export function buildCombineWhereClause(baseConditions, filters) {
+export function buildCombineWhereClause(baseConditions = [], filters) {
     const baseFields = Object.keys(baseConditions);
     const baseValues = Object.values(baseConditions);
 
@@ -156,6 +156,7 @@ export async function findAllServices({ tableName, queryOptions, selectQuery = "
     `;
 
     const { rows } = await db.query(sqlQuery, queryValues);
+
     return rows;
 };
 

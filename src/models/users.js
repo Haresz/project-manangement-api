@@ -13,7 +13,7 @@ async function findAll(queryOptions) {
     })
 };
 
-async function countOfUsers() {
+async function countOfUsers(queryOptions) {
     return countServices({ tableName: TABLE_NAME, queryOptions });
 }
 
