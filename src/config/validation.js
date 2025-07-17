@@ -52,7 +52,7 @@ export const validationMember = [
     body('role', "role must be filled")
         .trim()
         .not().isEmpty()
-        .escape().isUUID(4),
+        .escape(),
 ];
 
 export const validationParamsMember = [

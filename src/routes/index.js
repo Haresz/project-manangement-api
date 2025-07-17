@@ -5,7 +5,7 @@ import organizationController from "../controllers/organization.js";
 import memberController from "../controllers/organizationMembers.js"
 
 import { validationLogin, validationMember, validationOrganization, validationParamsMember, validationRegister } from "../config/validation.js";
-import { verifyToken } from "../middleware/auth.js";
+import { isAdminOrOwner, isMemberOfOrg, verifyToken } from "../middleware/auth.js";
 import { queryParser } from "../middleware/queryParser.js";
 
 const router = express.Router();
@@ -38,11 +38,11 @@ router.patch('/organization/:id', verifyToken, organizationController.updateOrga
 router.delete('/organization/:id', verifyToken, organizationController.deleteOrganization);
 
 // members
-router.get('/organizations/:organization_id/members', verifyToken, queryParser(membersQueryOptions), memberController.getMembersOfOrganizations);
-router.get('/organizations/:organization_id/members/:user_id', verifyToken, validationParamsMember, memberController.getDetailMember);
-router.post('/organizations/members', verifyToken, validationMember, memberController.createMember);
-router.patch('/organizations/:organization_id/members/:user_id', verifyToken, validationParamsMember, memberController.updateMember);
-router.delete('/organizations/:organization_id/members/:user_id', verifyToken, validationParamsMember, memberController.deleteMember);
+router.get('/organizations/:organization_id/members', verifyToken, isMemberOfOrg, queryParser(membersQueryOptions), memberController.getMembersOfOrganizations);
+router.get('/organizations/:organization_id/members/:user_id', verifyToken, isMemberOfOrg, validationParamsMember, memberController.getDetailMember);
+router.post('/organizations/members', verifyToken, isAdminOrOwner, validationMember, memberController.createMember);
+router.patch('/organizations/:organization_id/members/:user_id', verifyToken, isAdminOrOwner, validationParamsMember, memberController.updateMember);
+router.delete('/organizations/:organization_id/members/:user_id', verifyToken, isAdminOrOwner, validationParamsMember, memberController.deleteMember);
 
 
 export default router

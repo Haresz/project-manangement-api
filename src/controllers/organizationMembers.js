@@ -72,10 +72,19 @@ async function getDetailMember(req, res) {
 };
 
 async function createMember(req, res) {
+    const { organization_id, user_id } = req.body;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() })
+    }
+
+    const isMemberExist = await organizationMembersModels.findMember({ organization_id, user_id });
+
+    if (isMemberExist) {
+        return res.status(409).json({
+            message: `Member already axist`
+        })
     }
 
     try {
@@ -110,6 +119,7 @@ async function updateMember(req, res) {
             message: `Member Not Found`
         })
     }
+
     try {
         const member = await organizationMembersModels.updateMember({ data: req.body, organization_id, user_id });
 

@@ -48,7 +48,7 @@ async function findAllForMember({ queryOptions, user_id }) {
     `
     const { rows } = await db.query(sqlQuery, [...queryValues, limit, offset]);
     return rows
-}
+};
 
 /**
  * Menghitung jumlah total organisasi di mana pengguna adalah anggota.
@@ -80,21 +80,21 @@ async function countForMember({ queryOptions, user_id }) {
 
     const { rows } = await db.query(sqlQuery, queryValues);
     return rows[0].count;
-}
+};
 
 async function findById({ id }) {
     return findOneServices({
         tableName: TABLE_NAME,
         conditions: { id }
     })
-}
+};
 
 async function findByOwner({ owner_id }) {
     return findOneServices({
         tableName: TABLE_NAME,
         conditions: { owner_id }
     })
-}
+};
 
 async function countOfOrganization(queryOptions) {
     return countServices({
@@ -121,7 +121,7 @@ async function update({ data, id }) {
 
 async function deleteData({ id }) {
     return deleteServices({ tableName: TABLE_NAME, id })
-}
+};
 
 export default {
     findAll,
