@@ -59,3 +59,7 @@ export const validationParamsMember = [
     param("organization_id", "Invalid organization_id").isUUID(4),
     param("user_id", "Invalid user_id").isUUID(4)
 ];
+
+export const validationParamsProject = [
+    param("organization_id", "Invalid organization_id").isUUID(4),
+]

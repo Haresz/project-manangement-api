@@ -2,7 +2,8 @@ import express from "express";
 import userController from "../controllers/users.js";
 import authController from "../controllers/auth.js";
 import organizationController from "../controllers/organization.js";
-import memberController from "../controllers/organizationMembers.js"
+import memberController from "../controllers/organizationMembers.js";
+import projectsController from "../controllers/projects.js";
 
 import { validationLogin, validationMember, validationOrganization, validationParamsMember, validationRegister } from "../config/validation.js";
 import { isAdminOrOwner, isMemberOfOrg, verifyToken } from "../middleware/auth.js";
@@ -39,10 +40,16 @@ router.delete('/organization/:id', verifyToken, organizationController.deleteOrg
 
 // members
 router.get('/organizations/:organization_id/members', verifyToken, isMemberOfOrg, queryParser(membersQueryOptions), memberController.getMembersOfOrganizations);
-router.get('/organizations/:organization_id/members/:user_id', verifyToken, isMemberOfOrg, validationParamsMember, memberController.getDetailMember);
+router.get('/organizations/:organization_id/members/:user_id', verifyToken, validationParamsMember, isMemberOfOrg, memberController.getDetailMember);
 router.post('/organizations/members', verifyToken, isAdminOrOwner, validationMember, memberController.createMember);
-router.patch('/organizations/:organization_id/members/:user_id', verifyToken, isAdminOrOwner, validationParamsMember, memberController.updateMember);
-router.delete('/organizations/:organization_id/members/:user_id', verifyToken, isAdminOrOwner, validationParamsMember, memberController.deleteMember);
+router.patch('/organizations/:organization_id/members/:user_id', verifyToken, validationParamsMember, isAdminOrOwner, memberController.updateMember);
+router.delete('/organizations/:organization_id/members/:user_id', verifyToken, validationParamsMember, isAdminOrOwner, memberController.deleteMember);
 
+// // projects
+router.get('/organizations/:organization_id/projects', verifyToken, isMemberOfOrg, projectsController.getProjectsByOrg);
+router.get('/projects/:id', verifyToken, projectsController.getProject);
+router.post('/projects', verifyToken, projectsController.createProject);
+router.patch('/organizations/:organization_id/projects/:id', verifyToken, projectsController.updateProject);
+router.delete('/organizations/:organization_id/projects/:id', verifyToken, projectsController.deleteProject)
 
 export default router

@@ -77,7 +77,7 @@ async function createOrganization(req, res) {
 
         res.status(201).json({
             data: newOrganization,
-            message: "success"
+            message: "Success"
         })
     } catch (error) {
         console.log(error);
