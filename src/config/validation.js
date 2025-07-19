@@ -55,11 +55,8 @@ export const validationMember = [
         .escape(),
 ];
 
-export const validationParamsMember = [
-    param("organization_id", "Invalid organization_id").isUUID(4),
-    param("user_id", "Invalid user_id").isUUID(4)
-];
-
-export const validationParamsProject = [
-    param("organization_id", "Invalid organization_id").isUUID(4),
-]
+export function validationParamsUUID4(fields = []) {
+    return fields.map(f => {
+        return param(f, `Invalid ${f}, must be a UUID 4 `).isUUID(4)
+    });
+}
