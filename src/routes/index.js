@@ -5,7 +5,7 @@ import organizationController from "../controllers/organization.js";
 import memberController from "../controllers/organizationMembers.js";
 import projectsController from "../controllers/projects.js";
 
-import { validationLogin, validationMember, validationOrganization, validationParamsUUID4, validationRegister } from "../config/validation.js";
+import { validationLogin, validationMember, validationOrganization, validationParamsUUID4, validationProject, validationRegister } from "../config/validation.js";
 import { isAdminOrOwner, isMemberOfOrg, verifyToken } from "../middleware/auth.js";
 import { queryParser } from "../middleware/queryParser.js";
 
@@ -23,6 +23,10 @@ const organizationQueryOptions = {
 const membersQueryOptions = {
     allowedColumns: ["role", "organization_id", "user_id", "joined_at"]
 };
+
+const projectQueryOptions = {
+    allowedColumns: ["name", "description", "organization_id", "status", "start_date", "end_date", "created_at", "updated_at"]
+}
 
 // auth
 router.get('/users', verifyToken, queryParser(userQueryOptions), userController.getAllUsers);
@@ -46,9 +50,9 @@ router.patch('/organizations/:organization_id/members/:user_id', verifyToken, va
 router.delete('/organizations/:organization_id/members/:user_id', verifyToken, validationParamsUUID4(['organization_id', 'user_id']), isAdminOrOwner, memberController.deleteMember);
 
 // // projects
-router.get('/organizations/:organization_id/projects', verifyToken, validationParamsUUID4(['organization_id']), isMemberOfOrg, projectsController.getProjectsByOrg);
+router.get('/organizations/:organization_id/projects', verifyToken, validationParamsUUID4(['organization_id']), queryParser(projectQueryOptions), isMemberOfOrg, projectsController.getProjectsByOrg);
 router.get('/projects/:id', verifyToken, validationParamsUUID4(['id']), projectsController.getProject);
-router.post('/projects', verifyToken, projectsController.createProject);
+router.post('/projects', verifyToken, validationProject, projectsController.createProject);
 router.patch('/organizations/:organization_id/projects/:id', verifyToken, validationParamsUUID4(['organization_id', 'id']), projectsController.updateProject);
 router.delete('/organizations/:organization_id/projects/:id', verifyToken, validationParamsUUID4(['organization_id', 'id']), projectsController.deleteProject)
 
