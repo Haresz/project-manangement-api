@@ -19,7 +19,7 @@ const PERMISSIONS = {
     },
     task: {
         creatable: ["title", "description", "project_id", "assignee_id", "reporter_id", "status", "priority", "due_date"],
-        updatable: ["title", "description", "project_id", "assignee_id", , "status", "priority", "due_date"],
+        updatable: ["title", "description", "project_id", "assignee_id", "status", "priority", "due_date"],
     },
     comments: {
         creatable: ["content", "user_id", "task_id"],

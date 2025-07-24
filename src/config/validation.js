@@ -55,6 +55,7 @@ export const validationMember = [
 
 // Daftar status yang diizinkan untuk proyek
 const ALLOWED_STATUSES = ['PENDING', 'ON_PROGRESS', 'COMPLETED', 'CANCELLED'];
+const ALLOWED_PRIORITY = ['0', '1', '2', '3', '4'];
 
 export const validationProject = [
     // 1. Validasi Name & Description
@@ -91,6 +92,31 @@ export const validationProject = [
             }
             return true;
         }),
+];
+
+export const validationTask = [
+    body("title")
+        .trim().notEmpty().withMessage("Title is required."),
+    body("description")
+        .trim().notEmpty().withMessage("Description is required."),
+    body("project_id")
+        .trim().notEmpty().withMessage("Project ID is required.")
+        .isUUID(4).withMessage("Project ID must be a valid UUID4"),
+    body("assignee_id")
+        .trim().notEmpty().withMessage("Assignee ID is required.")
+        .isUUID(4).withMessage("Assignee ID must be a valid UUID4"),
+    body("reporter_id")
+        .trim().notEmpty().withMessage("Reporter ID is required.")
+        .isUUID(4).withMessage("Reporter ID must be a valid UUID4"),
+    body("status")
+        .trim().notEmpty().withMessage("Status ID is required.")
+        .isIn(ALLOWED_STATUSES).withMessage(`Status must be one of: ${ALLOWED_STATUSES.join(", ")}`),
+    body("priorty")
+        .trim().notEmpty().withMessage("Priority is required.")
+        .isIn(ALLOWED_PRIORITY).withMessage(`Status must be one of: ${ALLOWED_PRIORITY.join(", ")}`),
+    body("due_date")
+        .isISO8601().withMessage("Start date must be valid ISO8601 date (YYYY-MM-DD).")
+        .toDate()
 ];
 
 export function validationParamsUUID4(fields = []) {
