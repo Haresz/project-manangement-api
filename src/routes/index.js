@@ -5,8 +5,9 @@ import organizationController from "../controllers/organization.js";
 import memberController from "../controllers/organizationMembers.js";
 import projectsController from "../controllers/projects.js";
 import taksController from "../controllers/task.js";
+import commentsController from "../controllers/comments.js";
 
-import { validationLogin, validationMember, validationOrganization, validationParamsUUID4, validationProject, validationRegister, validationTask } from "../config/validation.js";
+import { validationComment, validationLogin, validationMember, validationOrganization, validationParamsUUID4, validationProject, validationRegister, validationTask } from "../config/validation.js";
 import { isAdminOrOwner, isMemberOfOrg, verifyToken } from "../middleware/auth.js";
 import { queryParser } from "../middleware/queryParser.js";
 
@@ -32,6 +33,10 @@ const projectQueryOptions = {
 const taskQueryOptions = {
     allowedColumns: ["title", "description", "project_id", "assignee_id", "reporter_id", "status", "priority", "due_date", "created_at", "updated_at"]
 };
+
+const commentQueryOptions = {
+    allowedColumns: ["content", "user_id", "task_id", "created_at", "updated_at"]
+}
 
 // auth
 router.get('/users', verifyToken, queryParser(userQueryOptions), userController.getAllUsers);
@@ -61,14 +66,21 @@ router.get('/organizations/:organization_id/projects', verifyToken, validationPa
 router.get('/projects/:id', verifyToken, validationParamsUUID4(['id']), projectsController.getProject);
 router.post('/projects', verifyToken, validationProject, projectsController.createProject);
 router.patch('/organizations/:organization_id/projects/:id', verifyToken, validationParamsUUID4(['organization_id', 'id']), projectsController.updateProject);
-router.delete('/organizations/:organization_id/projects/:id', verifyToken, validationParamsUUID4(['organization_id', 'id']), projectsController.deleteProject)
+router.delete('/organizations/:organization_id/projects/:id', verifyToken, validationParamsUUID4(['organization_id', 'id']), projectsController.deleteProject);
 
 // task
 // next only admin or owner create, edit, delete
-router.get("/projects/:project_id/tasks", verifyToken, validationParamsUUID4(["project_id"]), queryParser(taskQueryOptions), taksController.getTaskByProject)
-router.get("/tasks/:id", verifyToken, validationParamsUUID4(["id"]), taksController.getTask)
-router.post("/tasks", verifyToken, validationTask, taksController.createTask)
-router.patch("/tasks/:id", verifyToken, validationParamsUUID4(["id"]), taksController.updateTask)
-router.delete("/tasks/:id", verifyToken, validationParamsUUID4(["id"]), taksController.deleteTask)
+router.get("/projects/:project_id/tasks", verifyToken, validationParamsUUID4(["project_id"]), queryParser(taskQueryOptions), taksController.getTaskByProject);
+router.get("/tasks/:id", verifyToken, validationParamsUUID4(["id"]), taksController.getTask);
+router.post("/tasks", verifyToken, validationTask, taksController.createTask);
+router.patch("/tasks/:id", verifyToken, validationParamsUUID4(["id"]), taksController.updateTask);
+router.delete("/tasks/:id", verifyToken, validationParamsUUID4(["id"]), taksController.deleteTask);
+
+// comments
+router.get("/task/:task_id/comments", verifyToken, validationParamsUUID4(["task_id"]), queryParser(commentQueryOptions), commentsController.getCommentsByTask)
+router.get("/comments/:id", verifyToken, validationParamsUUID4(["id"]), commentsController.getComment)
+router.post("/comments", verifyToken, validationComment, commentsController.createComment)
+router.patch("/comments/:id", verifyToken, validationParamsUUID4(["id"]), commentsController.updateComment)
+router.delete("/comments/:id", verifyToken, validationParamsUUID4(["id"]), commentsController.deleteComment)
 
 export default router

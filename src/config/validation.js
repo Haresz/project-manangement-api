@@ -119,6 +119,17 @@ export const validationTask = [
         .toDate()
 ];
 
+export const validationComment = [
+    body("content")
+        .trim().notEmpty().withMessage("Content is required"),
+    body("user_id")
+        .trim().notEmpty().withMessage("User ID is required")
+        .isUUID(4).withMessage("User ID must be a valid UUID4"),
+    body("task_id")
+        .trim().notEmpty().withMessage("Task ID is required")
+        .isUUID(4).withMessage("Task ID must be valid UUID4")
+]
+
 export function validationParamsUUID4(fields = []) {
     return fields.map(f => {
         return param(f, `Invalid ${f}, must be a UUID 4 `).isUUID(4)

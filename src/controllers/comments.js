@@ -1,13 +1,13 @@
 import { validationResult } from "express-validator";
-import taskModel from "../models/task";
+import commentModel from "../models/comments";
 
-async function getTaskByProject(req, res) {
-    const { project_id } = req.params;
+async function getCommentsByTask(req, res) {
+    const { task_id } = req.params;
     const { limit, page } = req.queryOptions.pagination;
 
     try {
-        const tasks = await taskModel.findByProject({ project_id, queryOptions: req.queryOptions });
-        const count = parseInt(await taskModel.countTask({ queryOptions: req.queryOptions, project_id }));
+        const comments = await commentModel.findByTask({ task_id, queryOptions: req.queryOptions });
+        const count = parseInt(await commentModel.countComments({ queryOptions: req.queryOptions, task_id }));
 
         const totalPages = Math.ceil(count / limit);
         const paginationResponse = {
@@ -19,16 +19,16 @@ async function getTaskByProject(req, res) {
             prevPage: page > 1 ? page - 1 : null
         };
 
-        if (tasks.length <= 0) {
+        if (comments.length <= 0) {
             return res.status(200).json({
-                data: tasks,
+                data: comments,
                 paginationResponse,
-                message: "No tasks found"
+                message: "No comments found"
             })
         }
 
         res.status(200).json({
-            data: tasks,
+            data: comments,
             paginationResponse,
             message: "succes"
         })
@@ -38,19 +38,19 @@ async function getTaskByProject(req, res) {
     }
 };
 
-async function getTask(req, res) {
+async function getComment(req, res) {
     const { id } = req.params;
     try {
-        const task = await taskModel.findTask({ id });
+        const comment = await commentModel.findComment({ id });
 
-        if (!task) {
+        if (!comment) {
             return res.status(404).json({
-                message: "Task Not Found"
+                message: "Comment Not Found"
             })
         }
 
         res.status(200).json({
-            data: task,
+            data: comment,
             message: "Success"
         })
     } catch (error) {
@@ -61,7 +61,7 @@ async function getTask(req, res) {
     }
 };
 
-async function createTask(req, res) {
+async function createComment(req, res) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -69,10 +69,10 @@ async function createTask(req, res) {
     }
 
     try {
-        const newTask = await taskModel.createTask({ data: req.body });
+        const newComment = await commentModel.createComment({ data: req.body });
 
         res.status(201).json({
-            data: newTask,
+            data: newComment,
             message: "Success"
         });
     } catch (error) {
@@ -83,19 +83,19 @@ async function createTask(req, res) {
     }
 };
 
-async function updateTask(req, res) {
+async function updateComment(req, res) {
     const { id } = req.params;
     try {
-        const task = await taskModel.updateTask({ data: req.body, id });
+        const comment = await commentModel.updateComment({ data: req.body, id });
 
-        if (!task) {
+        if (!comment) {
             return res.status(404).json({
-                message: "Task Not Found"
+                message: "comment Not Found"
             })
         }
 
         res.status(201).json({
-            data: task,
+            data: comment,
             message: "Update Successfuly"
         })
     } catch (error) {
@@ -104,19 +104,19 @@ async function updateTask(req, res) {
     }
 };
 
-async function deleteTask(req, res) {
+async function deleteComment(req, res) {
     const { id } = req.params;
     try {
-        const task = await taskModel.deleteTask({ id });
+        const comment = await commentModel.deleteComment({ id });
 
-        if (!task) {
+        if (!comment) {
             return res.status(404).json({
-                message: "Task Not Found"
+                message: "Comment Not Found"
             })
         };
 
         res.status(201).json({
-            data: task,
+            data: comment,
             message: "Delete Successfuly"
         })
     } catch (error) {
@@ -126,9 +126,9 @@ async function deleteTask(req, res) {
 };
 
 export default {
-    getTaskByProject,
-    getTask,
-    createTask,
-    updateTask,
-    deleteTask
+    getCommentsByTask,
+    getComment,
+    createComment,
+    updateComment,
+    deleteComment
 }
